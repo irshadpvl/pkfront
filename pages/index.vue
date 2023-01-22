@@ -28,7 +28,7 @@
        </tr>
       </thead>
       <tbody class="divide-y divide-gray-200">
-       <tr v-for="poko in pokemon" :key="poko.id">
+       <tr v-for="poko in pokemon.data" :key="poko.id">
        {{ poko.current_page }}
         <td  class="px-6 py-4 text-sm font-medium text-gray-800 whitespace-nowrap">
          {{ poko.id }}
@@ -55,11 +55,11 @@
         
       </tbody>
      </table>
-    
+      <TailwindPagination :data="pokemon" @pagination-change-page="getResults" />
     </div>
      
    </div>
-   <TailwindPagination :data="pokemon" @pagination-change-page="getResults" /> 
+    
   </div>
  </div>
 
@@ -67,12 +67,20 @@
 
 <script setup>
 
+import { ref } from 'vue';
 import { TailwindPagination } from 'laravel-vue-pagination';
 
 
 
- const { data : pokemon} = await useFetch("http://127.0.0.1:8000/api/pokemon")
  
+const pokemon = ref({});
+
+const getResults = async (page = 1) => {
+ const response = await fetch("http://127.0.0.1:8000/api/pokemon");
+ pokemon.value = await response.json();
+}
+
+getResults();
 
   async function deleteData(id){
   const {data:res} = await useFetch("http://127.0.0.1:8000/api/pokemon/"+id, { method: "DELETE" });
